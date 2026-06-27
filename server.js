@@ -13,12 +13,18 @@ const port = process.env.PORT || 5000;
 
 // cors setup
 app.use(cors({
-    origin:[
-        'http://localhost:5173',
-        'http://localhost:3000',
-        'https://your-frontend.vercel.app'
-    ],
-    credentials:true
+    origin: (origin, callback) => {
+        // Allow requests with no origin (like mobile apps or curl)
+        if (!origin) return callback(null, true);
+        
+        const isAllowed = origin.startsWith('http://localhost') || origin.endsWith('.vercel.app');
+        if (isAllowed) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+    credentials: true
 }));
 
 app.use(express.json());
